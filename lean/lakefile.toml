@@ -1,0 +1,30 @@
+name = "tensor-low-degree"
+version = "0.1.0"
+defaultTargets = ["TensorLB", "Solution"]
+testDriver = "comparator_test"
+weakLeanArgs = ["-j2"]
+
+[leanOptions]
+autoImplicit = false
+pp.unicode.fun = true
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+# Mathlib v4.35.0, pinned to the release commit.
+rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+
+[[lean_lib]]
+name = "TensorLB"
+
+# The reference statement intentionally contains sorry and is excluded from
+# defaultTargets so a whole-library audit does not audit the challenge itself.
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
+
+[[lean_exe]]
+name = "comparator_test"
+root = "ComparatorTest"

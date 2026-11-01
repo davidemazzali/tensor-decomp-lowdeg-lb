@@ -1,0 +1,50 @@
+# macOS metadata.
+.DS_Store
+
+# Local Lean dependencies and compiled artifacts; commit lake-manifest.json.
+.lake/
+*.olean
+*.olean.*
+*.ilean
+*.ilean.*
+*.ir
+
+# LaTeX auxiliary files and build caches.
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.loa
+*.lof
+*.log
+*.lol
+*.lot
+*.out
+*.run.xml
+*.toc
+*.synctex
+*.synctex.gz
+*.synctex(busy)
+*.synctex.gz(busy)
+
+# LaTeX indexes, glossaries, presentations, and code listings.
+*.idx
+*.ind
+*.ilg
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.nav
+*.snm
+*.vrb
+_minted*/
+
+# Intermediate document formats; keep the manuscript PDF in version control.
+*.dvi
+*.xdv

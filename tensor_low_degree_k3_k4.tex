@@ -1,0 +1,525 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\loc}{\mathrm{loc}}
+\newcommand{\HS}{\mathrm{HS}}
+\DeclareMathOperator{\Unif}{Unif}
+\DeclareMathOperator{\Corr}{Corr}
+\DeclareMathOperator{\MMSE}{MMSE}
+\DeclareMathOperator{\Lift}{Lift}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\ST}{ST}
+\allowdisplaybreaks[1]
+
+\title{Low-Degree Lower Bounds for Overcomplete Tensor Decomposition\thanks{This manuscript was generated with GPT-6 Astra and has not been independently verified by humans.}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a form of overcomplete tensor decomposition in the low-degree polynomial framework: given an order-\(k\) tensor with $m$ components $v_1,\dots,v_m$ drawn from $\{\pm 1\}^n$, where $v_1^{\otimes k}$ is scaled up by a constant factor $\tau >1$, the goal is for a polynomial of degree at most \(\ell\) to recover the first entry of $v_1$, or the product of the first two entries if $k$ is even.
+For \(k\in\{3,4\}\), degree \(\ell^3 \le n\), and \(m \ge C n^{k/2}\ell^{k/2-1}\) for a large enough constant $C$, we prove that any polynomial of degree at most \(\ell\) has negligible advantage, in mean square error, over the constant-zero estimator.
+\end{abstract}
+
+\section{Definitions}
+
+Following Wein~\cite[Sections~1.1--1.2]{Wein2023}, we consider a form of tensor decomposition that fits the low-degree polynomial (LDP) framework: one component has larger norm, and the goal is to estimate its first entry.
+Let \([n]=\{1,\ldots,n\}\), and write \(v^A=\prod_{i\in A}v(i)\) for \(A\subseteq[n]\).
+Fix \(k\in\{3,4\}\), integers \(n\ge4\) and \(m\ge2\), and \(\tau>1\).
+The observation is
+\begin{equation}\label{eq:model}
+T=\tau v_1^{\otimes k}+\sum_{j=2}^{m}v_j^{\otimes k},
+\qquad
+v_1,\ldots,v_{m}\stackrel{\mathrm{iid}}{\sim}
+\Unif(\{\pm1\}^n).
+\end{equation}
+Here \(m\) denotes the rank parameter, namely the number of rank-1 terms; the first term has weight \(\tau>1\), and all remaining terms have weight one.
+Equivalently, the component vectors are \(\tau^{1/k}v_1,v_2,\ldots,v_m\), so estimating the first entry of the component of larger norm amounts to estimating \(v_1(1)\), up to a known scale.
+Define
+\begin{equation}\label{eq:observations}
+\Omega_k=\{I\subseteq[n]:1\le |I|\le k,\ |I|\equiv k\pmod2\},
+\qquad
+Y_I=\tau v_1^I+\sum_{j=2}^{m}v_j^I .
+\end{equation}
+Each tensor entry equals \(Y_I\) for the set \(I\) of coordinates occurring an odd number of times, or, if \(I=\varnothing\), the deterministic constant \(m-1+\tau\).
+Conversely, every \(Y_I\), \(I\in\Omega_k\), occurs as a tensor entry.
+Thus polynomials in \(T\) and in \(Y=(Y_I)_{I\in\Omega_k}\) generate the same observable polynomial space, with the same degree bound.
+
+The target classes are
+\begin{equation}\label{eq:targets}
+\mathcal A_3=\{A\subseteq[n]:|A|=1\},
+\qquad
+\mathcal A_4=\{A\subseteq[n]:|A|\in\{2,4\}\}.
+\end{equation}
+For \(A\in\mathcal A_k\), put \(x_A=v_1^A\) and \(a=|A|\).
+For \(k=3\), taking \(A=\{1\}\) gives the first-entry target \(v_1(1)\).
+For \(k=4\), the tensor is unchanged by \(v_1\mapsto-v_1\), so we use sign-invariant targets; the pair target \(v_1(1)v_1(2)\) was suggested by Wein~\cite[Section~2]{Wein2023}.
+It is the first entry of the representative \(v_1(2)v_1\), whose second entry is positive.
+The theorem also covers all pair and quartet targets in \eqref{eq:targets}.
+For a positive integer \(\ell\), let \(\R[T]_{\le\ell}\) be the space of real polynomials of degree at most \(\ell\) in the tensor entries.
+Following Wein~\cite[Sections~1.2 and~1.4.1]{Wein2023}, define the \emph{degree-\(\ell\) minimum mean squared error} and the \emph{degree-\(\ell\) maximum correlation} by
+\begin{align}
+\MMSE_{\le \ell}(x_A;T)
+&=\inf_{f\in\R[T]_{\le\ell}}\E[(f(T)-x_A)^2],
+\label{eq:mmse}\\
+\Corr_{\le \ell}(x_A;T)
+&=\sup_{\substack{f\in\R[T]_{\le\ell}\\\E[f(T)^2]>0}}
+\frac{\E[x_Af(T)]}{\sqrt{\E[f(T)^2]}} .
+\label{eq:corr}
+\end{align}
+Both optimizations range over all real polynomials in the full tensor entries.
+Since \(\E[x_A^2]=1\), the standard identity used in Wein~\cite[Fact~3.1]{Wein2023} gives
+\(\MMSE_{\le \ell}(x_A;T)=1-\Corr_{\le \ell}(x_A;T)^2\).
+
+\section{Statement}
+
+\begin{theorem}\label{thm:main}
+For every fixed \(\tau>1\), there exists \(C_\tau<\infty\), independent of \(n,m,\ell\) and uniform for \(k\in\{3,4\}\), such that
+\begin{equation}\label{eq:hypotheses}
+\ell^3\le n,
+\qquad
+m\ge C_\tau n^{k/2}\ell^{k/2-1}
+\end{equation}
+imply, for every \(A\in\mathcal A_k\),
+\begin{equation}\label{eq:conclusion}
+\Corr_{\le \ell}(x_A;T)^2\le n^{-|A|/2},
+\qquad
+\MMSE_{\le \ell}(x_A;T)\ge1-n^{-|A|/2}.
+\end{equation}
+\end{theorem}
+
+\section{Proof}
+
+We use Wein's reduction to the Fourier basis of the underlying Rademacher variables~\cite[Sections~1.4.1 and~3.1--3.2]{Wein2023}, expressed below through a moment-matching witness.
+Throughout the proof, \(C\) denotes a universal constant that may change between occurrences.
+Constants with subscript \(\tau\) depend only on \(\tau\).
+Fix an allowed target \(A\), and abbreviate \(\Omega=\Omega_k\).
+For uniform \(z\in\{\pm1\}^n\), set
+\begin{equation}\label{eq:tilt}
+F(t)=\E_z\exp\left(\sum_{I\in\Omega}t_Iz^I\right),
+\qquad
+\phi_B(t)=
+\frac{\E_z[z^B\exp(\sum_{I\in\Omega}t_Iz^I)]}{F(t)}
+\quad(\varnothing\ne B\subseteq[n]).
+\end{equation}
+These functions initially define holomorphic germs at zero, with \(\phi_B(0)=0\).
+Let \(K_I(t)\) be the joint cumulant of \((z_i)_{i\in I}\) under this tilt, for \(I\in\Omega\).
+For \(k=3\), its coordinates are
+\begin{equation}\label{eq:k3}
+K_i=\phi_i,\qquad
+K_{ijs}
+=\phi_{ijs}-\phi_i\phi_{js}-\phi_j\phi_{is}
+-\phi_s\phi_{ij}+2\phi_i\phi_j\phi_s .
+\end{equation}
+For \(k=4\), global spin-flip symmetry makes every odd tilted moment vanish, so
+\begin{equation}\label{eq:k4}
+K_{ij}=\phi_{ij},\qquad
+K_{ijsr}
+=\phi_{ijsr}-\phi_{ij}\phi_{sr}
+-\phi_{is}\phi_{jr}-\phi_{ir}\phi_{js}.
+\end{equation}
+All indices within a displayed set are distinct.
+Character orthogonality gives \(K(0)=0\) and \(DK(0)=\Id\).
+For \(t\in\C^\Omega\), write
+\begin{equation}\label{eq:local-norm}
+\|t\|_{\loc}=\max_{i\in[n]}\sum_{\substack{I\in\Omega\\i\in I}}|t_I|.
+\end{equation}
+
+\begin{lemma}\label{lem:analytic}
+There exists \(\rho_\tau>0\), independent of \(n,k,A\), such that
+\begin{equation}\label{eq:response}
+\mathcal C_A(q)=\phi_A(\tau K^{-1}(q))
+\end{equation}
+is holomorphic on a neighborhood of the closed ball
+\(\|q\|_{\loc}\le\rho_\tau\) and satisfies \(|\mathcal C_A(q)|\le1\) there.
+\end{lemma}
+
+\begin{proof}
+Write \(K(t)=\sum_{r\ge1}T_r(t,\ldots,t)\).
+Differentiating tilted cumulants gives the symmetric multilinear coefficients
+\begin{equation}\label{eq:multilinear}
+T_{r,I}(w_1,\ldots,w_r)
+=\frac1{r!}\sum_{J_1,\ldots,J_r\in\Omega}
+\kappa_0\big((z_i)_{i\in I},z^{J_1},\ldots,z^{J_r}\big)
+\prod_{b=1}^r(w_b)_{J_b}.
+\end{equation}
+We use the dependency-graph inequality~\cite[Eq.~(47)]{FMN2015}
+\begin{equation}\label{eq:tree-bound}
+|\kappa(X_1,\ldots,X_s)|\le2^{s-1}\ST(G)
+\end{equation}
+for variables bounded in absolute value by one with dependency graph \(G\), where \(\ST(G)\) is the number of spanning trees.
+For \eqref{eq:multilinear}, join character occurrences whose supports intersect.
+This is a dependency graph, including when occurrences repeat.
+
+Fix an output coordinate \(i\) and output size \(p\in\{k-2,k\}\).
+Root a spanning tree at the marked spin \(z_i\).
+An interaction child \(b\) attached to a parent support \(B\) contributes at most
+\[
+\sum_{J:J\cap B\ne\varnothing}|(w_b)_J|
+\le |B|\|w_b\|_{\loc}\le k\|w_b\|_{\loc}.
+\]
+Each of the other \(p-1\) marked spin children has at most \(k\) coordinate choices.
+These subtree bounds are uniform in the parent's support.
+Summing ordered choices of marked coordinates overcounts the output sets.
+Thus Cayley's formula and \eqref{eq:tree-bound} give
+\begin{equation}\label{eq:anchored-tree}
+\sum_{\substack{I\ni i\\|I|=p}}
+|T_{r,I}(w_1,\ldots,w_r)|
+\le
+\frac{(2k)^{r+p-1}(r+p)^{r+p-2}}{r!}
+\prod_{b=1}^r\|w_b\|_{\loc}.
+\end{equation}
+Since \(k,p\le4\), the sum of the two numerical prefactors is at most \(C_0^r\) for a universal \(C_0\).
+Consequently
+\begin{equation}\label{eq:mixed-bound}
+\|T_r(w_1,\ldots,w_r)\|_{\loc}
+\le C_0^r\prod_{b=1}^r\|w_b\|_{\loc}.
+\end{equation}
+
+The resulting series converges on a dimension-independent complex ball.
+To identify it with the actual moment ratios, let \(L_r\) be the homogeneous degree-\(r\) part of the formal logarithm of \(F\).
+Here \(L_1=0\).
+Rooting the interaction-only tree at its first interaction and using
+\(\sum_I|t_I|\le n\|t\|_{\loc}\) gives, for \(r\ge2\),
+\begin{equation}\label{eq:log-bound}
+|L_r(t)|
+\le
+\frac{2^{r-1}r^{r-2}}{r!}
+n\|t\|_{\loc}(k\|t\|_{\loc})^{r-1}
+\le nC^r\|t\|_{\loc}^r.
+\end{equation}
+The logarithmic series converges on a universal ball.
+The germ identity \(F=\exp(\sum_rL_r)\) extends throughout that connected ball, so \(F\) has no zeros there.
+The series for \(K\) therefore agrees with \eqref{eq:k3}--\eqref{eq:k4}.
+
+Set \(H=K-\Id\).
+Since \(T_1=\Id\), the mixed bound \eqref{eq:mixed-bound} implies
+\begin{equation}\label{eq:derivative-bound}
+\|DH(t)\|_{\loc\to\loc}
+\le\sum_{r\ge2}rC_0^r\|t\|_{\loc}^{r-1}.
+\end{equation}
+Choose a universal \(\eta>0\) so that the right-hand side is at most \(1/2\) on the closed \(\eta\)-ball, inside the analytic domain.
+For \(\|q\|_{\loc}<\eta/2\), the map \(t\mapsto q-H(t)\) contracts that ball.
+Its holomorphic iterates converge uniformly to the inverse, and
+\begin{equation}\label{eq:inverse-bound}
+\|K^{-1}(q)\|_{\loc}\le2\|q\|_{\loc},
+\qquad
+\|K(t)\|_{\loc}\le\tfrac32\|t\|_{\loc}
+\quad(\|t\|_{\loc}\le\eta).
+\end{equation}
+For singleton targets when \(k=3\) and pair targets when \(k=4\), \(\phi_A\) is a coordinate of \(K\).
+For a quartet,
+\[
+\phi_{ijsr}
+=K_{ijsr}+K_{ij}K_{sr}
++K_{is}K_{jr}+K_{ir}K_{js}.
+\]
+Shrinking \(\eta\), and then taking a sufficiently small \(\rho_\tau<\eta/(4\tau)\), proves the asserted holomorphy and bound for \(\mathcal C_A\).
+\end{proof}
+
+For a multiset \(S\) of elements of \(\Omega\), write
+\[
+|S|=\sum_I S_I,\qquad S!=\prod_I S_I!,\qquad
+q^S=\prod_Iq_I^{S_I},
+\]
+and let \(\triangle S\) be the symmetric difference of its elements, with multiplicity.
+Expand
+\begin{equation}\label{eq:energy-definition}
+\mathcal C_A(q)=\sum_{d\ge1}\mathcal C_{A,d}(q),
+\qquad
+\mathcal C_{A,d}(q)=\sum_{|S|=d}\frac{c_{A,S}}{S!}q^S,
+\qquad
+\mathcal E_{A,d}=\sum_{|S|=d}\frac{c_{A,S}^2}{S!}.
+\end{equation}
+The coefficients are real.
+
+\begin{lemma}\label{lem:coefficients}
+For all \(d\ge1\),
+\begin{equation}\label{eq:energy-bound}
+\mathcal E_{A,d}
+\le n^{-a/2}
+\bigl(B_\tau n^{k/2}d^{k/2-1}\bigr)^d
+\exp(4d^4/n),
+\end{equation}
+where \(B_\tau\) is independent of \(n,k,A,d\).
+\end{lemma}
+
+\begin{proof}
+Coordinate-sign changes commute with \(K\) and its unique local inverse, and multiply the response by the sign character indexed by \(A\).
+Hence
+\begin{equation}\label{eq:parity}
+c_{A,S}=0\quad\text{unless}\quad\triangle S=A.
+\end{equation}
+Equivalently, \(S\) together with \(A\) forms an \emph{even cover}: every coordinate occurs an even number of times, counting multiplicities.
+This is the even-cover restriction used by Wein~\cite[Lemma~3.16]{Wein2023}, with the singleton target there replaced by \(A\).
+In particular, contributing degrees satisfy \(kd\equiv a\pmod2\).
+For \(k=3\) this requires odd \(d\); for \(k=4\) it imposes no degree restriction.
+
+For a fixed multiset \(S\), set \(s_i=\sum_{I\ni i}S_I\) and \(M_I=\max_{i\in I}s_i\).
+On the active variables, choose radii \(r_I=\rho_\tau S_I/M_I\).
+Since
+\(\sum_{I\ni i}r_I\le(\rho_\tau/s_i)\sum_{I\ni i}S_I=\rho_\tau\)
+for every occurring coordinate \(i\), this polydisc lies in the ball of Lemma~\ref{lem:analytic}.
+Cauchy's estimate yields
+\begin{equation}\label{eq:cauchy}
+|c_{A,S}|
+\le S!\prod_I r_I^{-S_I}
+\le\rho_\tau^{-d}\prod_I M_I^{S_I}
+\le\rho_\tau^{-d}\prod_{i:s_i>0}s_i^{s_i}.
+\end{equation}
+Here we used \(S_I!\le S_I^{S_I}\) and \(M_I\le\prod_{i\in I}s_i\).
+
+We refine Wein's counting of even covers~\cite[Lemma~3.17]{Wein2023} by keeping track of coordinate multiplicities.
+Passing from multisets to ordered tuples gives
+\begin{equation}\label{eq:ordered-count}
+\mathcal E_{A,d}
+\le\frac{\rho_\tau^{-2d}}{d!}
+\sum_{\substack{I_1,\ldots,I_d\in\Omega\\\triangle_b I_b=A}}
+\prod_{i:s_i>0}s_i^{2s_i}.
+\end{equation}
+Fix one of the at most \(2^d\) choices of input sizes in \(\{k-2,k\}\).
+Let \(s\le kd\) be its number of incidence slots.
+A contributing pattern has \(s\ge a\) and \(s\equiv a\pmod2\); put \(L=(s-a)/2\).
+The multiplicities can be written as
+\[
+s_i=1+2b_i\quad(i\in A),\qquad
+s_j=2+2b_j\quad(j\notin A\text{ occurring}).
+\]
+If \(h\) nonroot coordinates occur and \(e=\sum_i b_i\), then \(h=L-e\).
+There are at most \(n^h/h!\) supports and
+\(\binom{e+h+a-1}{e}=\binom{L+a-1}{e}\)
+weak compositions of \(e\).
+
+For fixed multiplicities, there are \(s!/\prod_i s_i!\) assignments to the labeled slots.
+Allowing repetitions within an input set only enlarges the count.
+If \(u=b+2b'\le4d\), where \(b\in\{1,2\}\), then
+\begin{equation}\label{eq:multiplicity-bound}
+\frac{u^{2u}}{u!}\le \exp(u)u^u
+\le(16\exp(1))^u d^{2b'}.
+\end{equation}
+Indeed \(u^u\le(4d)^{2b'}u^2\), \(4^{2b'}\le4^u\), and \(u^2\le4^u\).
+Thus the fixed size pattern contributes at most
+\begin{equation}\label{eq:collision-sum}
+\frac{C_\tau^d s!}{d!}
+\sum_{e=0}^{L}\frac{n^{L-e}}{(L-e)!}
+\binom{L+a-1}{e}d^{2e}.
+\end{equation}
+If the support size exceeds the available coordinates, its actual contribution is zero, so the relaxed support bound remains valid.
+
+After factoring out \(n^L/L!\), use
+\begin{equation}\label{eq:collision-exponential}
+\frac{L!}{(L-e)!}\binom{L+a-1}{e}d^{2e}
+\le\frac{[L(L+a-1)d^2]^e}{e!}
+\le\frac{(4d^4)^e}{e!}.
+\end{equation}
+The last inequality follows from \(L\le(3d-1)/2\), \(2d-1\), or \(2d-2\) for \((k,a)=(3,1),(4,2),(4,4)\), respectively.
+When \(L=0\), only \(e=0\) occurs and the expression is one.
+Summing in \eqref{eq:collision-sum} therefore gives
+\begin{equation}\label{eq:fixed-size-bound}
+\frac{C_\tau^d s!n^L}{d!L!}\exp(4d^4/n).
+\end{equation}
+
+Increasing \(s\) by two multiplies \(s!n^{(s-a)/2}/((s-a)/2)!\) by
+\(n(s+2)(s+1)/(L+1)\ge1\).
+Since \(kd\equiv a\pmod2\), the maximum occurs at \(s=kd\).
+Put \(L_*=(kd-a)/2\).
+Except for \((k,a,d)=(4,4,1)\), which is immediate, \(L_*\ge d\), and elementary factorial bounds give
+\[
+\frac{(kd)!}{d!L_*!}
+\le C^d d^{kd-d-L_*}
+=C^d d^{(k/2-1)d+a/2}
+\le C^d d^{(k/2-1)d}.
+\]
+In the last inequality the constant is enlarged using \(d^{a/2}\le d^2\le4^d\).
+Now \(n^{L_*}=n^{-a/2}n^{kd/2}\); summing the at most \(2^d\) size patterns proves \eqref{eq:energy-bound}.
+\end{proof}
+
+Define the auxiliary index sets
+\[
+\Lambda_3=\{B\subseteq[n]:1\le|B|\le3\},
+\qquad
+\Lambda_4=\Omega_4.
+\]
+Following Wein's use of Fourier monomials with distinct component indices~\cite[Section~3.4]{Wein2023}, we average over distinct background components.
+For a multiset \(R=(B_1,\ldots,B_r)\) from \(\Lambda_k\), with \(r\le m-1\), let
+\begin{equation}\label{eq:fourier-witnesses}
+U_R=\frac1{(m-1)^{\underline r}}
+\sum_{\substack{j_1,\ldots,j_r\in\{2,\ldots,m\}\\\text{all distinct}}}
+\prod_{b=1}^r v_{j_b}^{B_b},
+\qquad
+(m-1)^{\underline r}=(m-1)(m-2)\cdots(m-r).
+\end{equation}
+Set \(U_\varnothing=1\).
+For a polynomial \(P(u)=\sum_Rp_Ru^R\) of degree at most \(m-1\), define
+\(\Lift(P)=\sum_Rp_RU_R\).
+The auxiliary pair characters used for \(k=3\) are functions of the underlying Rademacher variables, not additional observations.
+
+Let \(b_k(u)\) be obtained from \eqref{eq:k3} or \eqref{eq:k4} by replacing each \(\phi_B\) with the independent letter \(u_B\).
+Then
+\begin{equation}\label{eq:substitution}
+b_k(\phi(t))=K(t),\qquad
+\deg b_k\le h_k,\qquad h_3=3,\quad h_4=2.
+\end{equation}
+When \(m-1\ge h_k\ell\), set
+\begin{equation}\label{eq:witness-definition}
+P_{A,\ell}(u)=\sum_{d=1}^\ell\mathcal C_{A,d}(b_k(u)),
+\qquad
+W_{A,\ell}=\Lift(P_{A,\ell}).
+\end{equation}
+
+\begin{lemma}\label{lem:lift}
+Suppose \(m-1\ge6\ell\).
+Then \(W_{A,\ell}\) satisfies
+\begin{equation}\label{eq:moment-matching}
+\E[W_{A,\ell}f(Y)]=\E[x_Af(Y)]
+\qquad(\deg f\le \ell),
+\end{equation}
+and, for \(1\le d\le \ell\),
+\begin{equation}\label{eq:lift-bound}
+\bigl\|\Lift[\mathcal C_{A,d}(b_k(u))]\bigr\|_2
+\le6^d\sqrt{\frac{\mathcal E_{A,d}}{(m-1)^{\underline d}}}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Products of the underlying independent Rademacher variables form the standard Fourier basis for functions on the hypercube.
+Every distinct basis monomial in \(U_R\) occurs \(R!\) times, where \(R!=\prod_B R_B!\), and there are \((m-1)^{\underline r}/R!\) such monomials.
+Different multisets have disjoint Fourier supports.
+Consequently
+\begin{equation}\label{eq:orthogonality}
+\langle U_R,U_{R'}\rangle=0\quad(R\ne R'),
+\qquad
+\|U_R\|_2^2=\frac{R!}{(m-1)^{\underline{|R|}}}.
+\end{equation}
+Independence gives
+\begin{align}
+\E[U_Re^{\langle t,Y\rangle}]
+&=F(\tau t)F(t)^{m-1}\phi(t)^R,
+\label{eq:tilted-witness}\\
+\E[x_Ae^{\langle t,Y\rangle}]
+&=F(\tau t)F(t)^{m-1}\phi_A(\tau t).
+\label{eq:tilted-target}
+\end{align}
+Since \(K(0)=0\) and \(\mathcal C_A(K(t))=\phi_A(\tau t)\), the polynomial in \eqref{eq:witness-definition} satisfies
+\[
+P_{A,\ell}(\phi(t))=\phi_A(\tau t)+O_{\deg}(\ell+1).
+\]
+Its degree in the auxiliary variables is at most \(h_k\ell\le3\ell\le m-1\).
+Multiplying the formal identity by \(F(\tau t)F(t)^{m-1}\) and comparing Taylor coefficients in \eqref{eq:tilted-witness}--\eqref{eq:tilted-target} proves \eqref{eq:moment-matching}.
+
+For the norm bound, let \(V=\R^\Omega\) and \(H=\R^{\Lambda_k}\), with standard orthonormal bases.
+Represent the homogeneous parts of \(b_k\) by symmetric tensor maps \(Q_j:V\to H^{\otimes j}\):
+\[
+(b_k)_I^{[j]}(u)=\langle Q_je_I,u^{\otimes j}\rangle.
+\]
+The linear map is the basis inclusion.
+For \(k=3\), a triple output has six ordered singleton--pair coefficients \(-1/2\) in \(Q_2\), and six ordered three-singleton coefficients \(1/3\) in \(Q_3\).
+For \(k=4\), a quartet output has six ordered complementary-pair coefficients \(-1/2\) in \(Q_2\).
+Within each map, distinct output sets have disjoint tensor supports, because the union of an input tuple identifies its output.
+Thus
+\begin{equation}\label{eq:map-norms}
+\begin{array}{c|ccc}
+&\|Q_1\|&\|Q_2\|&\|Q_3\|\\ \hline
+k=3&1&\sqrt{3/2}&\sqrt{2/3}\\
+k=4&1&\sqrt{3/2}&0
+\end{array}
+\qquad\text{and}\qquad
+\sum_{j=1}^{h_k}\|Q_j\|\le6.
+\end{equation}
+
+Write \(\mathcal C_{A,d}(q)=\langle M_d,q^{\otimes d}\rangle\), with \(M_d\) symmetric.
+Its entry on an ordered tuple of multiset \(S\) is \(c_{A,S}/d!\), so
+\begin{equation}\label{eq:tensor-normalization}
+d!\|M_d\|_{\HS}^2=\mathcal E_{A,d}.
+\end{equation}
+For any symmetric order-\(s\) tensor \(M\), \eqref{eq:orthogonality} implies the exact identity
+\begin{equation}\label{eq:lift-normalization}
+\bigl\|\Lift\langle M,u^{\otimes s}\rangle\bigr\|_2^2
+=\frac{s!}{(m-1)^{\underline s}}\|M\|_{\HS}^2.
+\end{equation}
+For one substitution choice \((j_1,\ldots,j_d)\), the resulting tensor has order \(s=\sum_bj_b\in[d,h_kd]\) and norm at most
+\(\prod_b\|Q_{j_b}\|\cdot\|M_d\|_{\HS}\).
+Orthogonal symmetrization leaves its polynomial unchanged and cannot increase the norm.
+When \(m-1\ge6\ell\), the successive ratio
+\[
+\frac{(s+1)!/(m-1)^{\underline{s+1}}}{s!/(m-1)^{\underline s}}
+=\frac{s+1}{m-1-s}\le1
+\qquad(d\le s<3d)
+\]
+shows that \(s!/(m-1)^{\underline s}\le d!/(m-1)^{\underline d}\) throughout the needed range.
+Using \eqref{eq:tensor-normalization}--\eqref{eq:lift-normalization} and summing all substitution choices by the triangle inequality gives
+\[
+\bigl\|\Lift[\mathcal C_{A,d}(b_k(u))]\bigr\|_2
+\le
+\left(\sum_{j=1}^{h_k}\|Q_j\|\right)^d
+\sqrt{\frac{\mathcal E_{A,d}}{(m-1)^{\underline d}}},
+\]
+which proves \eqref{eq:lift-bound}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+For \(d\le \ell\), the assumption \(\ell^3\le n\) gives \(d^4/n\le d\).
+Absorbing the exponential in Lemma~\ref{lem:coefficients} into its constant, we obtain
+\begin{equation}\label{eq:absorbed-bound}
+\mathcal E_{A,d}
+\le n^{-a/2}\bigl(B_\tau n^{k/2}d^{k/2-1}\bigr)^d.
+\end{equation}
+Choose \(C_\tau\ge\max\{8,288B_\tau\}\).
+Under \eqref{eq:hypotheses}, \(n^{k/2}\ell^{k/2-1}\ge \ell\), so \(m-1\ge6\ell\) and \(m-\ell\ge m/2\).
+By Lemma~\ref{lem:lift}, the triangle inequality across degrees, and
+\((m-1)^{\underline d}\ge(m-\ell)^d\),
+\begin{equation}\label{eq:geometric-bound}
+\|W_{A,\ell}\|_2
+\le n^{-a/4}
+\sum_{d=1}^\ell
+\left(
+\frac{36B_\tau n^{k/2}d^{k/2-1}}{m-\ell}
+\right)^{d/2}.
+\end{equation}
+Each base is at most
+\[
+\frac{72B_\tau n^{k/2}\ell^{k/2-1}}{m}\le\frac14,
+\]
+and hence \(\|W_{A,\ell}\|_2\le n^{-a/4}\sum_{d\ge1}2^{-d}=n^{-a/4}\).
+For every polynomial \(f\) of degree at most \(\ell\), moment matching yields
+\[
+\E[(f(Y)-x_A)^2]
+=1-\|W_{A,\ell}\|_2^2+\E[(f(Y)-W_{A,\ell})^2]
+\ge1-n^{-a/2}.
+\]
+Alternatively, Cauchy--Schwarz applied to
+\(\E[x_Af(Y)]=\E[W_{A,\ell}f(Y)]\)
+gives the squared-correlation bound directly.
+The equivalence of the \(T\)- and \(Y\)-polynomial spaces completes the proof.
+\end{proof}
+
+\begin{thebibliography}{9}
+
+\bibitem{Wein2023}
+Alexander S.~Wein.
+\newblock Average-case complexity of tensor decomposition for low-degree polynomials.
+\newblock In \emph{Proceedings of the 55th Annual ACM Symposium on Theory of Computing (STOC 2023)}, pp.~1685--1698, 2023.
+\newblock \href{https://doi.org/10.1145/3564246.3585232}{doi:10.1145/3564246.3585232}.
+\newblock \href{https://arxiv.org/abs/2211.05274v2}{arXiv:2211.05274v2}.
+
+\bibitem{FMN2015}
+Valentin F\'eray, Pierre-Lo\"ic M\'eliot, and Ashkan Nikeghbali.
+\newblock \emph{Mod-\(\phi\) convergence, I: Normality zones and precise deviations}.
+\newblock \href{https://arxiv.org/abs/1304.2934v4}{arXiv:1304.2934v4}, 2015.
+
+\end{thebibliography}
+
+\end{document}
